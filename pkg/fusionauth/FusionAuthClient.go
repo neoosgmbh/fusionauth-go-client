@@ -526,6 +526,26 @@ func (c *FusionAuthClient) DeactivateUsers(userIds []string) (interface{}, error
     for _, userId := range userIds {
  		  q.Add("userId", userId)
  	  }
+    q.Add("dryRun", strconv.FormatBool(false))
+    q.Add("hardDelete", strconv.FormatBool(false))
+    var resp interface{}
+    _, err = c.Do(req, &resp)
+    return resp, err
+}
+
+// DeactivateUsersByQuery
+// Deactivates the users found with the given search query string.
+//   string queryString The search query string.
+//   bool dryRun Whether to preview or deactivate the users found by the queryString
+func (c *FusionAuthClient) DeactivateUsersByQuery(queryString string, dryRun bool) (interface{}, error) {
+    var body interface{}
+    uri := "/api/user/bulk"
+    method := http.MethodDelete
+    req, err := c.NewRequest(method, uri, body)
+    q := req.URL.Query()
+    q.Add("queryString", string(queryString))
+    q.Add("dryRun", strconv.FormatBool(dryRun))
+    q.Add("hardDelete", strconv.FormatBool(false))
     var resp interface{}
     _, err = c.Do(req, &resp)
     return resp, err
@@ -760,8 +780,10 @@ func (c *FusionAuthClient) DeleteUserActionReason(userActionReasonId string) (in
 }
 
 // DeleteUsers
-// Deletes the users with the given ids.
-//   interface{} request The ids of the users to delete.
+// Deletes the users with the given ids, or users matching the provided queryString.
+// If you provide both userIds and queryString, the userIds will be honored.  This can be used to deactivate or hard-delete 
+// a user based on the hardDelete request body parameter.
+//   interface{} request The UserDeleteRequest.
 func (c *FusionAuthClient) DeleteUsers(request interface{}) (interface{}, error) {
     var body interface{}
     uri := "/api/user/bulk"
@@ -769,6 +791,24 @@ func (c *FusionAuthClient) DeleteUsers(request interface{}) (interface{}, error)
     body = request
     req, err := c.NewRequest(method, uri, body)
     req.Header.Set("Content-Type", "application/json")
+    var resp interface{}
+    _, err = c.Do(req, &resp)
+    return resp, err
+}
+
+// DeleteUsersByQuery
+// Delete the users found with the given search query string.
+//   string queryString The search query string.
+//   bool dryRun Whether to preview or delete the users found by the queryString
+func (c *FusionAuthClient) DeleteUsersByQuery(queryString string, dryRun bool) (interface{}, error) {
+    var body interface{}
+    uri := "/api/user/bulk"
+    method := http.MethodDelete
+    req, err := c.NewRequest(method, uri, body)
+    q := req.URL.Query()
+    q.Add("queryString", string(queryString))
+    q.Add("dryRun", strconv.FormatBool(dryRun))
+    q.Add("hardDelete", strconv.FormatBool(true))
     var resp interface{}
     _, err = c.Do(req, &resp)
     return resp, err
