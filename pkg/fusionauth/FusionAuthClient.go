@@ -2461,6 +2461,22 @@ func (c *FusionAuthClient) SendTwoFactorCodeForLogin(twoFactorId string) (interf
     return resp, err
 }
 
+// StartIdentityProviderLogin
+// Begins a login request for a 3rd party login that requires user interaction such as HYPR.
+//   interface{} request The third-party login request that contains information from the third-party login
+//   providers that FusionAuth uses to reconcile the user's account.
+func (c *FusionAuthClient) StartIdentityProviderLogin(request interface{}) (interface{}, error) {
+    var body interface{}
+    uri := "/api/identity-provider/start"
+    method := http.MethodPost
+    body = request
+    req, err := c.NewRequest(method, uri, body)
+    req.Header.Set("Content-Type", "application/json")
+    var resp interface{}
+    _, err = c.Do(req, &resp)
+    return resp, err
+}
+
 // StartPasswordlessLogin
 // Start a passwordless login request by generating a passwordless code. This code can be sent to the User using the Send
 // Passwordless Code API or using a mechanism outside of FusionAuth. The passwordless login is completed by using the Passwordless Login API with this code.
